@@ -1,0 +1,8 @@
+{{define "error.html"}}
+<section class="card empty">
+  {{template "icon-alert"}}
+  <h1>Nothing <b>found</b></h1>
+  <p>{{.Error}}</p>
+  <a href="{{.HomeLink}}" class="button">Back to the latest blocks</a>
+</section>
+{{end}}

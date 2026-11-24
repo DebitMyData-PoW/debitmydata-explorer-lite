@@ -1,0 +1,48 @@
+{{define "block.html"}}
+<div class="page-head">
+  <p class="eyebrow">Block</p>
+  <h1>Block <b>{{.Block.Height}}</b></h1>
+</div>
+
+<div class="grid">
+  <section class="card">
+    <h2 class="card-head">{{template "icon-cube"}}Block</h2>
+    <dl class="kv">
+      <div><dt>Height</dt><dd>{{.Block.Height}}</dd></div>
+      <div><dt>Hash</dt><dd class="mono">{{.Block.Hash}}</dd></div>
+      <div><dt>Time</dt><dd><time data-unix="{{.Block.Time}}">{{.Block.Time}}</time></dd></div>
+      {{if .Block.PreviousBlockHash}}
+      <div><dt>Previous block</dt><dd><a class="mono" href="/?block={{.Block.PreviousBlockHash}}">{{.Block.PreviousBlockHash}}</a></dd></div>
+      {{end}}
+      {{if .Block.NextBlockHash}}
+      <div><dt>Next block</dt><dd><a class="mono" href="/?block={{.Block.NextBlockHash}}">{{.Block.NextBlockHash}}</a></dd></div>
+      {{end}}
+    </dl>
+  </section>
+  <section class="card">
+    <h2 class="card-head">{{template "icon-info"}}Details</h2>
+    <dl class="kv">
+      <div><dt>Transactions</dt><dd>{{.Block.NTx}}</dd></div>
+      <div><dt>Size</dt><dd>{{.Block.Size}} bytes</dd></div>
+      <div><dt>Weight</dt><dd>{{.Block.Weight}} weight units</dd></div>
+      {{if .Block.Stats}}
+      <div><dt>Total of all outputs</dt><dd><span data-data="{{.Block.Stats.TotalOut}}">{{.Block.Stats.TotalOut}} data</span></dd></div>
+      <div><dt>Total fees</dt><dd><span data-data="{{.Block.Stats.TotalFee}}">{{.Block.Stats.TotalFee}} data</span></dd></div>
+      {{end}}
+    </dl>
+  </section>
+</div>
+
+<section class="card">
+  <h2 class="card-head">{{template "icon-swap"}}Transactions<span class="count">{{.Block.NTx}}</span></h2>
+  {{if .Block.Tx}}
+  <ol class="list">
+    {{range .Block.Tx}}
+    <li><a class="mono" href="/?tx={{index . "txid"}}">{{index . "txid"}}</a></li>
+    {{end}}
+  </ol>
+  {{else}}
+  <p class="note">The transactions of this block are not available.</p>
+  {{end}}
+</section>
+{{end}}

@@ -1,0 +1,36 @@
+{{define "overview.html"}}
+<section class="hero">
+  <div>
+    <p class="eyebrow">Proof-of-Work chain</p>
+    <h1>DebitMyData <b>block explorer</b></h1>
+    <p class="lead">Look up any block, transaction or address on the DebitMyData network.</p>
+    <form class="search" role="search" action="{{.HomeLink}}">
+      <input name="search" type="search" placeholder="Block height or hash, transaction ID, address" aria-label="Search a block height or hash, a transaction or an address" autocomplete="off" spellcheck="false">
+      <button class="button" type="submit">{{template "icon-search"}}Search</button>
+    </form>
+    <p class="hint">DMD addresses start with dm1.</p>
+  </div>
+</section>
+
+<section class="card">
+  <h2 class="card-head">{{template "icon-cube"}}Latest blocks<span class="count">Last {{len .Blocks}}</span></h2>
+  <div class="table-wrap">
+    <table class="blocks">
+      <thead>
+        <tr><th>Height</th><th class="hide-s">Hash</th><th class="num">Transactions</th><th class="num hide-s">Size</th><th class="num">Age</th></tr>
+      </thead>
+      <tbody>
+        {{range .Blocks}}
+        <tr>
+          <td class="height"><a href="?block={{.Hash}}">{{.Height}}</a></td>
+          <td class="hide-s"><a class="mono" href="?block={{.Hash}}">{{.Hash}}</a></td>
+          <td class="num">{{.NTx}}</td>
+          <td class="num hide-s">{{.Size}} B</td>
+          <td class="num">{{.Age}}</td>
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+  </div>
+</section>
+{{end}}

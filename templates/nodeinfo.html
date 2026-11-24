@@ -1,0 +1,22 @@
+{{define "nodeinfo.html"}}
+<div class="page-head">
+  <p class="eyebrow">Node</p>
+  <h1>Node <b>information</b></h1>
+  <p class="lead">The DebitMyData node this explorer reads the chain from.</p>
+</div>
+
+<section class="card">
+  <h2 class="card-head">{{template "icon-server"}}Network and chain</h2>
+  <dl class="kv">
+    {{if .BlockchainInfo}}
+    <div><dt>Chain</dt><dd>{{.BlockchainInfo.Chain}}</dd></div>
+    <div><dt>Blocks</dt><dd>{{.BlockchainInfo.Blocks}}</dd></div>
+    <div><dt>Difficulty</dt><dd>{{.BlockchainInfo.Difficulty}}</dd></div>
+    {{end}}
+    {{if .NetworkInfo}}
+    <div><dt>Version</dt><dd>{{.NetworkInfo.Subversion}}</dd></div>
+    <div><dt>Connections</dt><dd>{{.NetworkInfo.Connections}}</dd></div>
+    {{end}}
+  </dl>
+</section>
+{{end}}

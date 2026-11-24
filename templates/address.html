@@ -1,0 +1,103 @@
+{{define "address.html"}}
+{{if .AddressData.IsValid}}
+<div class="page-head">
+  <p class="eyebrow">Address</p>
+  <h1>Address <b>details</b></h1>
+</div>
+
+<section class="card">
+  <h2 class="card-head">{{template "icon-coins"}}Balance</h2>
+  <p class="lead">This explorer keeps no address index, so the balance is worked out by scanning all unspent coins on the chain. It can take a minute.</p>
+  <p style="margin-top:16px"><button type="button" id="utxolookup" class="button">{{template "icon-search"}}Find the balance and unspent coins</button></p>
+  <div class="progress invisible" id="loadingbardiv">
+    <div id="loadingbar" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">0%</div>
+  </div>
+  <div id="result" aria-live="polite"></div>
+</section>
+
+<div class="grid">
+  <section class="card">
+    <h2 class="card-head">{{template "icon-wallet"}}Address</h2>
+    <dl class="kv">
+      <div><dt>Address</dt><dd class="mono">{{.AddressData.Address}}</dd></div>
+      <div><dt>Type</dt><dd>
+        {{if .AddressData.IsScript}}<span class="badge warn">Script</span>{{else}}<span class="badge ok">Address</span>{{end}}
+        {{if .AddressData.IsWitness}}<span class="badge">SegWit</span>{{end}}
+      </dd></div>
+      {{if .AddressData.IsWitness}}
+      <div><dt>Witness version</dt><dd>{{.AddressData.WitnessVersion}}</dd></div>
+      {{if .AddressData.WitnessProgram}}
+      <div><dt>Witness program</dt><dd class="mono">{{.AddressData.WitnessProgram}}</dd></div>
+      {{end}}
+      {{end}}
+    </dl>
+  </section>
+  <section class="card">
+    <h2 class="card-head">{{template "icon-code"}}Script</h2>
+    <dl class="kv">
+      <div><dt>scriptPubKey</dt><dd><div class="code">{{.AddressData.ScriptPubKey}}</div></dd></div>
+    </dl>
+  </section>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  var address = "{{.AddressData.Address}}";
+  var button = document.getElementById("utxolookup");
+  var box = document.getElementById("loadingbardiv");
+  var bar = document.getElementById("loadingbar");
+  var result = document.getElementById("result");
+  var timer = 0;
+  if (!button) return;
+
+  function note(text) {
+    var p = document.createElement("p");
+    p.className = "note";
+    p.textContent = text;
+    result.replaceChildren(p);
+  }
+  function progress(percent) {
+    bar.setAttribute("aria-valuenow", percent);
+    bar.style.width = percent + "%";
+    bar.textContent = percent + "%";
+  }
+  function finish() {
+    clearInterval(timer);
+    box.classList.add("invisible");
+    button.disabled = false;
+  }
+
+  button.addEventListener("click", function () {
+    if (button.disabled) return;
+    button.disabled = true;
+    box.classList.remove("invisible");
+    progress(0);
+    note("Scanning the unspent coins… this can take a while.");
+
+    fetch("?search=" + encodeURIComponent(address) + "&utxolookup=1")
+      .then(function (response) { return response.text(); })
+      .then(function (html) { result.innerHTML = html; finish(); })
+      .catch(function () { note("The scan could not be completed. Please try again."); finish(); });
+
+    timer = setInterval(function () {
+      fetch("?search=" + encodeURIComponent(address) + "&utxolookupstatus=1")
+        .then(function (response) { return response.text(); })
+        .then(function (percent) {
+          if (percent === "" || button.disabled === false) return;
+          progress(percent);
+          note("Scanning the unspent coins… " + percent + "%");
+        })
+        .catch(function () {});
+    }, 1000);
+  });
+});
+</script>
+{{else}}
+<section class="card empty">
+  {{template "icon-alert"}}
+  <h1>Not a valid <b>address</b></h1>
+  <p>What you searched for is not a valid address on the {{.NetworkName}} network. DMD addresses start with dm1.</p>
+  <a href="{{.HomeLink}}" class="button">Back to the latest blocks</a>
+</section>
+{{end}}
+{{end}}

@@ -1,0 +1,23 @@
+# systemd service for the DebitMyData Lite Explorer.
+# Set WorkingDirectory/ExecStart to the folder with the program, templates/ and static/,
+# and User to the account it runs as.
+[Unit]
+Description=DebitMyData Lite Explorer
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=explorer
+WorkingDirectory=/opt/debitmydata-lite-explorer
+EnvironmentFile=/etc/debitmydata-explorer.env
+ExecStart=/opt/debitmydata-lite-explorer/debitmydata-explorer
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

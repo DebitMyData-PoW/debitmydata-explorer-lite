@@ -1,0 +1,7 @@
+# The built program
+/debitmydata-explorer
+/debitmydata-explorer.exe
+
+# Settings with the node's RPC login
+*.env
+.env

@@ -1,0 +1,110 @@
+{{define "transaction.html"}}
+{{if .Transaction}}
+<div class="page-head">
+  <p class="eyebrow">Transaction</p>
+  <h1>Transaction <b>details</b></h1>
+</div>
+
+<div class="grid">
+  <section class="card">
+    <h2 class="card-head">{{template "icon-swap"}}Transaction</h2>
+    <dl class="kv">
+      <div><dt>Transaction ID</dt><dd class="mono">{{.Transaction.TxID}}</dd></div>
+      <div><dt>Version</dt><dd>{{.Transaction.Version}}</dd></div>
+      <div><dt>Size</dt><dd>{{.Transaction.Size}} bytes</dd></div>
+      <div><dt>Virtual size</dt><dd>{{.Transaction.Vsize}} vB</dd></div>
+      <div><dt>Weight</dt><dd>{{.Transaction.Weight}} weight units</dd></div>
+      <div><dt>Locktime</dt><dd>{{.Transaction.Locktime}}</dd></div>
+    </dl>
+  </section>
+  <section class="card">
+    <h2 class="card-head">{{template "icon-cube"}}Block</h2>
+    {{if .Transaction.Blockhash}}
+    <dl class="kv">
+      <div><dt>Block hash</dt><dd><a class="mono" href="/?block={{.Transaction.Blockhash}}">{{.Transaction.Blockhash}}</a></dd></div>
+      {{if .Transaction.Blocktime}}
+      <div><dt>Block time</dt><dd><time data-unix="{{.Transaction.Blocktime}}">{{.Transaction.Blocktime}}</time></dd></div>
+      {{end}}
+      {{if .Transaction.Confirmations}}
+      <div><dt>Confirmations</dt><dd><span class="badge ok">{{.Transaction.Confirmations}}</span></dd></div>
+      {{end}}
+    </dl>
+    {{else}}
+    <p class="note">Not in a block yet: this transaction is waiting to be mined.</p>
+    {{end}}
+  </section>
+</div>
+
+<section class="card">
+  <h2 class="card-head">{{template "icon-in"}}Inputs<span class="count">{{len .Transaction.Vin}}</span></h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Previous transaction</th><th class="num">Output</th><th class="num">Sequence</th></tr></thead>
+      <tbody>
+        {{range .Transaction.Vin}}
+        <tr>
+          <td>{{if .TXID}}<a class="mono" href="/?tx={{.TXID}}">{{.TXID}}</a>{{else}}<span class="badge">Coinbase (newly mined coins)</span>{{end}}</td>
+          <td class="num">{{if .TXID}}{{.Vout}}{{end}}</td>
+          <td class="num">{{.Sequence}}</td>
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="card">
+  <h2 class="card-head">{{template "icon-out"}}Outputs<span class="count">{{len .Transaction.Vout}}</span></h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th class="num">#</th><th class="num">Amount</th><th>Address</th><th>Type</th></tr></thead>
+      <tbody>
+        {{range .Transaction.Vout}}
+        <tr>
+          <td class="num">{{.N}}</td>
+          <td class="num"><b>{{printf "%.8f" .Value}}</b> DMD</td>
+          <td>{{if .ScriptPubKey.Address}}<a class="mono" href="/?search={{.ScriptPubKey.Address}}">{{.ScriptPubKey.Address}}</a>{{else}}<span class="sub">No address</span>{{end}}</td>
+          <td>{{.ScriptPubKey.Type}}</td>
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+{{$hasOpReturn := false}}
+{{range .Transaction.Vout}}{{if eq .ScriptPubKey.Type "nulldata"}}{{$hasOpReturn = true}}{{end}}{{end}}
+{{if $hasOpReturn}}
+<section class="card">
+  <h2 class="card-head">{{template "icon-code"}}Data stored in this transaction (OP_RETURN)</h2>
+  <dl class="kv">
+    {{range .Transaction.Vout}}{{if eq .ScriptPubKey.Type "nulldata"}}
+    <div><dt>Output {{.N}}, hex</dt><dd><div class="code">{{.ScriptPubKey.Hex}}</div></dd></div>
+    {{end}}{{end}}
+  </dl>
+</section>
+{{end}}
+
+{{if eq (len .Transaction.Vin) 1}}{{$firstInput := index .Transaction.Vin 0}}{{if not $firstInput.TXID}}
+<section class="card">
+  <h2 class="card-head">{{template "icon-coins"}}Coinbase</h2>
+  <dl class="kv">
+    <div><dt>Coinbase script, hex</dt><dd><div class="code">{{$firstInput.ScriptSig.Hex}}</div></dd></div>
+  </dl>
+</section>
+{{end}}{{end}}
+
+<section class="card">
+  <h2 class="card-head">{{template "icon-code"}}Raw transaction</h2>
+  <div class="code">{{.Transaction.Hex}}</div>
+</section>
+
+{{else}}
+<section class="card empty">
+  {{template "icon-alert"}}
+  <h1>Transaction <b>not found</b></h1>
+  <p>The transaction you searched for could not be found.</p>
+  <a href="{{.HomeLink}}" class="button">Back to the latest blocks</a>
+</section>
+{{end}}
+{{end}}
